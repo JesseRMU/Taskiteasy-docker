@@ -1,0 +1,56 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: php-apache-compose
+    ports:
+      - "8081:80"
+    volumes:
+      - .:/var/www/html
+    depends_on:
+      - mysql
+    networks:
+      - laravel
+
+  mysql:
+    image: mysql:8.0
+    container_name: mysql-laravel-compose
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: taskiteasy
+      MYSQL_USER: hz
+      MYSQL_PASSWORD: wachtwoord
+    volumes:
+      - mysql-data-compose:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    networks:
+      - laravel
+
+  node:
+    image: node:20
+    container_name: node-laravel-compose
+    working_dir: /var/www/html
+    volumes:
+      - .:/var/www/html
+    command: tail -f /dev/null
+    networks:
+      - laravel
+
+  composer:
+    image: composer:latest
+    container_name: composer-laravel-compose
+    working_dir: /var/www/html
+    volumes:
+      - .:/var/www/html
+    command: ["composer", "install"]
+    networks:
+      - laravel
+
+volumes:
+  mysql-data-compose:
+
+networks:
+  laravel:
